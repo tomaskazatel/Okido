@@ -29,5 +29,11 @@
     @apply bg-navy-950 text-slate-300 font-sans;
     margin: 0;
     min-height: 100vh;
+    /* Prevent iOS overscroll bounce */
+    overscroll-behavior: none;
   }
+
+  /* Safe area support for PWA standalone mode */
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }

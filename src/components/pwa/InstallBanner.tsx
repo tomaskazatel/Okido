@@ -2,23 +2,32 @@ import { useState, useEffect } from 'react'
 import { NOTIFICATIONS } from '@/lib/copy'
 import { isIOS, isStandalone } from '@/lib/push'
 
+const DISMISS_KEY = 'install-banner-dismissed-at'
+const RESHOW_DAYS = 3
+
 export function InstallBanner() {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
-    // Show only on iOS Safari, not standalone, and not previously dismissed
-    if (isIOS() && !isStandalone() && !sessionStorage.getItem('install-banner-dismissed')) {
-      // Delay show until 2nd page view
-      const views = parseInt(sessionStorage.getItem('page-views') || '0', 10) + 1
-      sessionStorage.setItem('page-views', String(views))
-      if (views >= 2) setVisible(true)
+    if (!isIOS() || isStandalone()) return
+
+    // Check if dismissed recently (within RESHOW_DAYS)
+    const dismissedAt = localStorage.getItem(DISMISS_KEY)
+    if (dismissedAt) {
+      const daysSince = (Date.now() - parseInt(dismissedAt, 10)) / (1000 * 60 * 60 * 24)
+      if (daysSince < RESHOW_DAYS) return
     }
+
+    // Show after 2nd page view in session
+    const views = parseInt(sessionStorage.getItem('page-views') || '0', 10) + 1
+    sessionStorage.setItem('page-views', String(views))
+    if (views >= 2) setVisible(true)
   }, [])
 
   const dismiss = () => {
     setDismissed(true)
-    sessionStorage.setItem('install-banner-dismissed', '1')
+    localStorage.setItem(DISMISS_KEY, String(Date.now()))
     setTimeout(() => setVisible(false), 300)
   }
 

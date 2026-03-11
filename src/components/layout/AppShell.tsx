@@ -2,6 +2,8 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 import { InstallBanner } from '@/components/pwa/InstallBanner'
+import { OfflineBanner } from '@/components/layout/OfflineBanner'
+import { ErrorBoundary } from '@/components/layout/ErrorBoundary'
 
 const navItems = [
   {
@@ -48,8 +50,10 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <OfflineBanner />
+
       {/* Top bar */}
-      <header className="border-b border-white/[0.06] px-4 py-3">
+      <header className="safe-top border-b border-white/[0.06] px-4 py-3">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <span className="text-sm font-semibold text-white tracking-tight">
             Okido
@@ -65,14 +69,16 @@ export function AppShell() {
       {/* Content */}
       <main className="flex-1 px-4 py-6">
         <div className="mx-auto max-w-lg">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
 
       <InstallBanner />
 
       {/* Bottom nav */}
-      <nav className="border-t border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
+      <nav className="safe-bottom border-t border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg">
           {navItems.map((item) => (
             <NavLink
