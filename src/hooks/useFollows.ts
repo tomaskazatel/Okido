@@ -155,6 +155,15 @@ export function useJoinByToken() {
     })
     if (followError) return { error: followError.message }
 
+    // Create default follow_settings (crisis always on)
+    await supabase.from('follow_settings').insert({
+      follower_id: user.id,
+      following_id: invite.owner_id,
+      notify_on_checkin: false,
+      notify_on_missed: true,
+      notify_on_crisis: true,
+    })
+
     // Mark invite as used
     await supabase
       .from('invite_links')
