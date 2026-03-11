@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import LandingPage from '@/pages/LandingPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
@@ -7,6 +7,7 @@ import CheckinPage from '@/pages/CheckinPage'
 import DashboardPage from '@/pages/DashboardPage'
 import InvitePage from '@/pages/InvitePage'
 import SettingsPage from '@/pages/SettingsPage'
+import JoinPage from '@/pages/JoinPage'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
 
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       {
         element: <AppShell />,
         children: [
+          { index: true, element: <Navigate to="checkin" replace /> },
           { path: 'checkin', element: <CheckinPage /> },
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'invite', element: <InvitePage /> },
@@ -33,6 +35,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: 'onboarding', element: <OnboardingPage /> },
+      { path: 'join/:token', element: <JoinPage /> },
     ],
   },
 ])
