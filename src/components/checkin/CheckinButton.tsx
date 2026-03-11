@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { MODE_CONFIG, type CheckinMode } from '@/lib/constants'
+import type { CheckinMode } from '@/lib/constants'
 import { CHECKIN } from '@/lib/copy'
 import { cn } from '@/lib/utils'
 

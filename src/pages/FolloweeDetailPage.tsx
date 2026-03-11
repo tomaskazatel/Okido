@@ -1,4 +1,4 @@
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { MODE_CONFIG, type CheckinMode } from '@/lib/constants'
 import { timeAgo } from '@/lib/utils'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,6 @@ const dotColors: Record<CheckinMode, string> = {
 }
 
 export default function FolloweeDetailPage() {
-  const { followId } = useParams<{ followId: string }>()
   const [searchParams] = useSearchParams()
   const uid = searchParams.get('uid') ?? undefined
   const { history, profile, loading, hasMore, loadMore } = useFolloweeHistory(uid)

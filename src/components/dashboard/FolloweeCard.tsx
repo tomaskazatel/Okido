@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MODE_CONFIG } from '@/lib/constants'
-import { DASHBOARD } from '@/lib/copy'
-import { timeAgo } from '@/lib/utils'
-import { cn } from '@/lib/utils'
+import { timeAgo, cn } from '@/lib/utils'
 import type { DashboardEntry } from '@/hooks/useDashboard'
 
 const borderColors: Record<string, string> = {

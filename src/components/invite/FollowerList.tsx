@@ -1,5 +1,4 @@
 import type { Follower } from '@/hooks/useFollows'
-import { cn } from '@/lib/utils'
 import { timeAgo } from '@/lib/utils'
 
 interface FollowerListProps {

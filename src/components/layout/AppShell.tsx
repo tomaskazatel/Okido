@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
+import { InstallBanner } from '@/components/pwa/InstallBanner'
 
 const navItems = [
   {
@@ -67,6 +68,8 @@ export function AppShell() {
           <Outlet />
         </div>
       </main>
+
+      <InstallBanner />
 
       {/* Bottom nav */}
       <nav className="border-t border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
