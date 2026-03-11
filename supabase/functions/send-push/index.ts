@@ -1,21 +1,14 @@
 // Supabase Edge Function: send-push
-// Sends Web Push notifications to specified users
-// Called by: crisis trigger (via pg_net), check-missed-checkins cron
-//
-// Expected payload:
-// {
-//   user_ids: string[],       // follower user IDs to notify
-//   title: string,
-//   body: string,
-//   url?: string,             // deep link path
-//   tag?: string              // notification grouping tag
-// }
+// Sends Web Push notifications using web-push via Deno npm compat
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import webpush from 'npm:web-push@3.6.7'
 
-const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')!
 const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY')!
+const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')!
 const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') || 'mailto:hello@okido.app'
+
+webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
 
 Deno.serve(async (req) => {
   try {
@@ -30,7 +23,6 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
-    // Get push subscriptions for these users
     const { data: subscriptions, error } = await supabase
       .from('push_subscriptions')
       .select('id, user_id, subscription')
@@ -50,35 +42,22 @@ Deno.serve(async (req) => {
 
     for (const sub of subscriptions) {
       try {
-        // Use Web Push protocol
         const pushSub = sub.subscription as {
           endpoint: string
           keys: { p256dh: string; auth: string }
         }
 
-        const response = await fetch(pushSub.endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/octet-stream',
-            TTL: '86400',
-            // Note: In production, you'd use proper VAPID signing here
-            // For now, we rely on the subscription being valid
-          },
-          body: payload,
-        })
-
-        if (response.status === 410 || response.status === 404) {
-          // Subscription expired, mark for cleanup
+        await webpush.sendNotification(pushSub, payload)
+        sent++
+      } catch (err: any) {
+        if (err?.statusCode === 410 || err?.statusCode === 404) {
           expiredIds.push(sub.id)
-        } else if (response.ok) {
-          sent++
+        } else {
+          console.error(`Push failed for ${sub.id}:`, err?.body || err?.message)
         }
-      } catch {
-        // Individual send failure, continue
       }
     }
 
-    // Clean up expired subscriptions
     if (expiredIds.length > 0) {
       await supabase.from('push_subscriptions').delete().in('id', expiredIds)
     }

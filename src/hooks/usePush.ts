@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
 import {
   isPushSupported,
   getPermissionState,
@@ -13,14 +14,27 @@ export function usePush() {
   const { user } = useAuth()
   const [permission, setPermission] = useState<NotificationPermission>(() => getPermissionState())
   const [subscribing, setSubscribing] = useState(false)
+  const [dbSubscribed, setDbSubscribed] = useState(false)
   const supported = isPushSupported()
   const needsInstall = isIOS() && !isStandalone()
+
+  // Check if user has a push subscription in DB
+  useEffect(() => {
+    if (!user || !supported) return
+    supabase
+      .from('push_subscriptions')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setDbSubscribed(!!data)
+      })
+  }, [user, supported])
 
   // Refresh permission state when it might change
   useEffect(() => {
     if (!supported) return
     const check = () => setPermission(Notification.permission)
-    // Check on visibility change (user might have changed in settings)
     document.addEventListener('visibilitychange', check)
     return () => document.removeEventListener('visibilitychange', check)
   }, [supported])
@@ -30,6 +44,7 @@ export function usePush() {
     setSubscribing(true)
     const result = await subscribeToPush(user.id)
     setPermission(getPermissionState())
+    if (!result.error) setDbSubscribed(true)
     setSubscribing(false)
     return result
   }
@@ -38,8 +53,11 @@ export function usePush() {
     if (!user) return { error: 'Not ready' }
     const result = await unsubscribeFromPush(user.id)
     setPermission(getPermissionState())
+    if (!result.error) setDbSubscribed(false)
     return result
   }
+
+  const isSubscribed = permission === 'granted' && dbSubscribed
 
   return {
     supported,
@@ -48,6 +66,6 @@ export function usePush() {
     subscribing,
     subscribe,
     unsubscribe,
-    isSubscribed: permission === 'granted',
+    isSubscribed,
   }
 }
