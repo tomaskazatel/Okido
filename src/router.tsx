@@ -8,6 +8,7 @@ import DashboardPage from '@/pages/DashboardPage'
 import InvitePage from '@/pages/InvitePage'
 import SettingsPage from '@/pages/SettingsPage'
 import JoinPage from '@/pages/JoinPage'
+import FolloweeDetailPage from '@/pages/FolloweeDetailPage'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
 
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="checkin" replace /> },
           { path: 'checkin', element: <CheckinPage /> },
           { path: 'dashboard', element: <DashboardPage /> },
+          { path: 'dashboard/:followId', element: <FolloweeDetailPage /> },
           { path: 'invite', element: <InvitePage /> },
           { path: 'settings', element: <SettingsPage /> },
         ],
