@@ -53,7 +53,7 @@ export function AppShell() {
       <OfflineBanner />
 
       {/* Top bar */}
-      <header className="safe-top border-b border-white/[0.06] px-4 py-3">
+      <header className="safe-top sticky top-0 z-30 border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl px-4 py-3">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <span className="text-sm font-semibold text-white tracking-tight">
             Okido
@@ -66,8 +66,8 @@ export function AppShell() {
         </div>
       </header>
 
-      {/* Content */}
-      <main className="flex-1 px-4 py-6">
+      {/* Content — pb accounts for fixed bottom nav */}
+      <main className="flex-1 px-4 py-6 pb-24">
         <div className="mx-auto max-w-lg">
           <ErrorBoundary>
             <Outlet />
@@ -77,8 +77,8 @@ export function AppShell() {
 
       <InstallBanner />
 
-      {/* Bottom nav */}
-      <nav className="safe-bottom border-t border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
+      {/* Bottom nav — fixed to viewport bottom */}
+      <nav className="fixed bottom-0 left-0 right-0 z-30 safe-bottom border-t border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg">
           {navItems.map((item) => (
             <NavLink
