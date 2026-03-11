@@ -6,6 +6,7 @@ import { CheckinButton } from '@/components/checkin/CheckinButton'
 import { MessageInput } from '@/components/checkin/MessageInput'
 import { CheckinHistory } from '@/components/checkin/CheckinHistory'
 import { NextCheckinDue } from '@/components/checkin/NextCheckinDue'
+import { PushPrompt } from '@/components/pwa/PushPrompt'
 
 export default function CheckinPage() {
   const { history, latest, loading, createCheckin } = useCheckin()
@@ -44,6 +45,9 @@ export default function CheckinPage() {
       )}
 
       <NextCheckinDue lastCheckinAt={latest?.created_at ?? null} mode={mode} />
+
+      {/* Show push prompt after user has at least one check-in */}
+      {history.length > 0 && <PushPrompt />}
 
       <div className="pt-2">
         <h2 className="mb-3 text-sm font-medium text-white/30 uppercase tracking-wider">History</h2>

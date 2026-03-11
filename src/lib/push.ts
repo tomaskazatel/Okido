@@ -38,6 +38,24 @@ export function getPermissionState(): NotificationPermission {
   return Notification.permission
 }
 
+/** Check if service worker is registered, register if needed */
+async function ensureServiceWorker(): Promise<ServiceWorkerRegistration> {
+  const registrations = await navigator.serviceWorker.getRegistrations()
+  if (registrations.length > 0) return navigator.serviceWorker.ready
+
+  // SW not registered yet (e.g. dev mode or first visit) — register it
+  const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
+  // Wait for it to be active
+  if (reg.active) return reg
+  return new Promise((resolve) => {
+    const sw = reg.installing || reg.waiting
+    if (!sw) { resolve(reg); return }
+    sw.addEventListener('statechange', () => {
+      if (sw.state === 'activated') resolve(reg)
+    })
+  })
+}
+
 /** Request push permission and subscribe */
 export async function subscribeToPush(userId: string): Promise<{ error: string | null }> {
   if (!isPushSupported()) return { error: 'Push notifications not supported' }
@@ -47,7 +65,7 @@ export async function subscribeToPush(userId: string): Promise<{ error: string |
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') return { error: 'Permission denied' }
 
-    const registration = await navigator.serviceWorker.ready
+    const registration = await ensureServiceWorker()
     let subscription = await registration.pushManager.getSubscription()
 
     if (!subscription) {
